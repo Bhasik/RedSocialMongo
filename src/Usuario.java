@@ -44,6 +44,7 @@ public class Usuario {
 
 	public boolean logearse(String correo, String pass, DB db) {
 
+		
 		try {
 
 			DBCollection collection = db.getCollection("usuario");
@@ -55,6 +56,7 @@ public class Usuario {
 
 			for (DBObject usuario : cursor) {
 
+				this.id = (ObjectId) usuario.get("_id");
 				this.nombre = usuario.get("nombre").toString();
 				this.apellidos = usuario.get("apellidos").toString();
 				this.correo = usuario.get("correo").toString();
@@ -84,20 +86,29 @@ public class Usuario {
 	
 	public void insertarGrupo(DB db,String nombre){
 		
-		grupos.add(nombre);
-		
 		DBCollection collection = db.getCollection("usuario");
 
-		BasicDBObject query = new BasicDBObject().append("_id", id);
+		BasicDBObject query = new BasicDBObject().append("_id", this.id);
 		
 		BasicDBObject insertar = new BasicDBObject();
+		
 		insertar.put("$push", new BasicDBObject(
-				"Grupo", new BasicDBObject("Nombre", nombre)));
+				"Grupo", Arrays.asList(nombre)));
 						
 
 
 
 		collection.update(query, insertar);
+		
+		
+	}
+	
+	public void visualizarComentarios(DB db,String nombre){
+		
+		Grupo gp = new Grupo();
+		
+		
+		
 		
 		
 	}

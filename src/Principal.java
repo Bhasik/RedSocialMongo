@@ -256,6 +256,7 @@ public class Principal {
 
 				case 5:
 
+					visualizarComentarios(db, u);
 					break;
 
 				case 6:
@@ -319,7 +320,7 @@ public class Principal {
 			
 		}else{
 			
-			u.insertarGrupo(db, nombre);
+			
 			gp.unirseGrupo(db, id,u);
 			
 			
@@ -329,7 +330,7 @@ public class Principal {
 	}
 
 	public static void insertarComentario(DB db,Usuario u) {
-
+		
 		Grupo gp = new Grupo();
 		
 		String comentario, grupo;
@@ -344,6 +345,23 @@ public class Principal {
 		
 		
 
+	}
+	
+	
+	public static void visualizarComentarios(DB db,Usuario u){
+		
+		ObjectId idGrupo;
+		String nombre;
+		Grupo gp = new Grupo();
+		System.out.println("De que grupo desea visualizar los comentarios");
+		nombre = leer.nextLine();
+		
+		idGrupo = gp.buscarGrupo(db, nombre, u);
+		
+		gp.visualizarComentarios(db, idGrupo);
+		
+		
+		
 	}
 
 }

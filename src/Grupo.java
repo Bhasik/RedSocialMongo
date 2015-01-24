@@ -57,7 +57,7 @@ public class Grupo {
 				new BasicDBObject().append("Total Usuarios", usuarios));
 
 	
-		u.insertarGrupo(db, nombre);
+		u.insertarGrupo(db,nombre);
 		collection.update(query, insertar);
 
 	}
@@ -86,7 +86,6 @@ public class Grupo {
 				} else {
 					
 					id = (ObjectId) grupo.get("_id");
-					u.insertarGrupo(db,this.nombre);
 					return id;
 				}
 			}
@@ -121,6 +120,46 @@ public class Grupo {
 		
 
 		collection.update(query,insertar);	
+		
+	}
+	
+	public void visualizarComentarios(DB db,ObjectId id){
+		
+		DBCollection collection = db.getCollection("grupo");
+		
+		String comentario,nombre;
+		Date fecha = new Date();
+		
+		
+		try{
+			
+			
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		DBCursor cursor = collection.find(query);
+
+		for (DBObject grupo : cursor) {
+
+			ArrayList<DBObject> comentarios = (ArrayList<DBObject>)grupo.get("comentario");
+	
+			for (int i=0;i<comentarios.size();i++){
+				
+				comentario = (String) comentarios.get(i).get("Texto");
+				nombre = (String) comentarios.get(i).get("usuario");
+				fecha = (Date) comentarios.get(i).get("fecha");
+				
+				System.out.println("Usuario: " + nombre  + "\n Comentario: " + comentario + "\n Fecha: " + fecha );
+				
+			}
+			
+		}
+
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	
+		
+		
 		
 	}
 }
