@@ -14,7 +14,7 @@ public class Grupo {
 
 	private ObjectId id;
 	private String nombre;
-	private static int comentarios, usuarios = 1;
+	private static int comentarios=0, usuarios = 1;
 
 	public Grupo() {
 
@@ -26,42 +26,45 @@ public class Grupo {
 
 	}
 
-	public void crearGrupo(DB db) {
+	public void crearGrupo(DB db,Usuario u) {
 
+	
 		Date fecha = new Date();
 
 		BasicDBObject doc = new BasicDBObject();
 		doc.put("nombre", this.nombre);
 		doc.put("Fecha Creacion", fecha);
 		doc.put("Total Usuarios", usuarios);
+		doc.put("Total Comentario",comentarios);
 
 		DBCollection collection = db.getCollection("grupo");
 		collection.save(doc);
 
+		u.insertarGrupo(db,this.nombre);
 	}
 
-	public void unirseGrupo(DB db, ObjectId id) {
+	public void unirseGrupo(DB db, ObjectId id,Usuario u) {
 
 		DBCollection collection = db.getCollection("grupo");
 
 		usuarios++;
 
 		System.out.println("Añadido al grupo");
-
-		BasicDBObject put = new BasicDBObject();
-		put.append("$set",
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		BasicDBObject insertar = new BasicDBObject();
+		insertar.append("$set",
 				new BasicDBObject().append("Total Usuarios", usuarios));
 
-		BasicDBObject query2 = new BasicDBObject().append("_id", id);
-
-		collection.update(query2, put);
+	
+		u.insertarGrupo(db, nombre);
+		collection.update(query, insertar);
 
 	}
 
-	public ObjectId buscarGrupo(DB db, String nombre) {
+	public ObjectId buscarGrupo(DB db, String nombre,Usuario u) {
 
 		ObjectId id;
-
 		try {
 
 			DBCollection collection = db.getCollection("grupo");
@@ -73,18 +76,18 @@ public class Grupo {
 			for (DBObject grupo : cursor) {
 
 				this.nombre = grupo.get("nombre").toString();
-				id = (ObjectId) grupo.get("_id");
+		
 
-				if (this.nombre.equalsIgnoreCase(nombre)) {
+				if (!this.nombre.equalsIgnoreCase(nombre)) {
 
-					return id;
-
+					System.out.println("No se ha encontrado el grupo");
+					
+					
 				} else {
-
-					System.out
-							.println("No se ha encontrado ningun grupo con ese nombre");
-
-					break;
+					
+					id = (ObjectId) grupo.get("_id");
+					u.insertarGrupo(db,this.nombre);
+					return id;
 				}
 			}
 
@@ -93,5 +96,31 @@ public class Grupo {
 		}
 
 		return null;
+	}
+	
+	
+	public void insertarComentario(DB db,String comentario,String nombre,Usuario u){
+		
+		
+		ObjectId id;
+		Date fecha = new Date();
+		comentarios++;
+		
+		DBCollection collection = db.getCollection("grupo");
+		
+		id=buscarGrupo(db, nombre,u);
+		
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		BasicDBObject insertar = new BasicDBObject();
+		
+		insertar.put("$push", new BasicDBObject(
+				"comentario", new BasicDBObject("Texto", comentario).append(
+						"usuario", u.getNombre()).append("fecha", fecha)));
+
+		
+
+		collection.update(query,insertar);	
+		
 	}
 }

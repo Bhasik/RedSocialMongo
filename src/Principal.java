@@ -178,13 +178,13 @@ public class Principal {
 
 				case 1:
 
-					menuGrupos(db);
+					menuGrupos(db,u);
 
 					break;
 
 				case 2:
 
-					// eliminarUsuario(db);
+					// eliminarUsuario(db,u);
 
 					break;
 
@@ -211,7 +211,7 @@ public class Principal {
 
 	}
 
-	public static void menuGrupos(DB db) {
+	public static void menuGrupos(DB db,Usuario u) {
 
 		int menu = -1;
 
@@ -233,24 +233,25 @@ public class Principal {
 
 				case 1:
 
-					crearGrupo(db);
+					crearGrupo(db,u);
 
 					break;
 
 				case 2:
 
-					unirGrupo(db);
+					unirGrupo(db,u);
 
 					break;
 
 				case 3:
 
-					// insertarComentario(db);
+					
 
 					break;
 
 				case 4:
 
+					insertarComentario(db,u);
 					break;
 
 				case 5:
@@ -284,18 +285,24 @@ public class Principal {
 
 	}
 
-	public static void crearGrupo(DB db) {
+	public static void crearGrupo(DB db,Usuario u) {
 
 		System.out.println("Nombre del grupo que desea unirse");
 		String nombre = leer.nextLine();
 
 		Grupo gp = new Grupo(nombre);
-
-		gp.crearGrupo(db);
+		
+		
+		gp.crearGrupo(db,u);
+	
+		
+		
+		
+		
 
 	}
 
-	public static void unirGrupo(DB db) {
+	public static void unirGrupo(DB db,Usuario u) {
 
 		ObjectId id;
 
@@ -303,13 +310,28 @@ public class Principal {
 		String nombre = leer.nextLine();
 
 		Grupo gp = new Grupo();
-		id = gp.buscarGrupo(db, nombre);
-		gp.unirseGrupo(db, id);
+		id = gp.buscarGrupo(db, nombre,u);
+		
+		if(id == null){
+			
+			System.out.println("No se ha encontrado el grupo");
+			
+			
+		}else{
+			
+			u.insertarGrupo(db, nombre);
+			gp.unirseGrupo(db, id,u);
+			
+			
+		}
+	
 
 	}
 
-	public void insertarComentario(DB db) {
+	public static void insertarComentario(DB db,Usuario u) {
 
+		Grupo gp = new Grupo();
+		
 		String comentario, grupo;
 
 		System.out.println("Grupo donde desea insertar el comentario");
@@ -317,6 +339,10 @@ public class Principal {
 
 		System.out.println("Comentario que desea introducir");
 		comentario = leer.nextLine();
+		
+		gp.insertarComentario(db, comentario,grupo,u);
+		
+		
 
 	}
 

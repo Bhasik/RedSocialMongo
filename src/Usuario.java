@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
@@ -11,7 +14,9 @@ public class Usuario {
 
 	private String nombre, apellidos, correo, pass, direccion;
 	private ObjectId id;
-
+	private ArrayList<String> grupos = new ArrayList<String>();
+	private int i;
+	
 	private DBCollection collection;
 
 	public Usuario() {
@@ -75,6 +80,26 @@ public class Usuario {
 		this.collection = db.getCollection("usuario");
 		this.collection.remove(query);
 
+	}
+	
+	public void insertarGrupo(DB db,String nombre){
+		
+		grupos.add(nombre);
+		
+		DBCollection collection = db.getCollection("usuario");
+
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		BasicDBObject insertar = new BasicDBObject();
+		insertar.put("$push", new BasicDBObject(
+				"Grupo", new BasicDBObject("Nombre", nombre)));
+						
+
+
+
+		collection.update(query, insertar);
+		
+		
 	}
 
 	public String getNombre() {
