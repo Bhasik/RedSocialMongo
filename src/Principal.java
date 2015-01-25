@@ -145,20 +145,6 @@ public class Principal {
 		}
 	}
 
-	/*
-	 * public static void eliminarUsuario(DB db){
-	 * 
-	 * 
-	 * Usuario u = new Usuario();
-	 * 
-	 * u.getNombre();
-	 * 
-	 * 
-	 * 
-	 * 
-	 * }
-	 */
-
 	public static void menuUsuario(DB db, Usuario u) {
 
 		int menu = -1;
@@ -178,19 +164,19 @@ public class Principal {
 
 				case 1:
 
-					menuGrupos(db,u);
+					menuGrupos(db, u);
 
 					break;
 
 				case 2:
 
-					// eliminarUsuario(db,u);
+					menu = eliminarUsuario(db, u);
 
 					break;
 
 				case 0:
 
-					System.out.println("Cerrando sesion del usuario");
+					System.out.println("Cerrando sesion del usuario \n");
 
 					break;
 
@@ -211,7 +197,13 @@ public class Principal {
 
 	}
 
-	public static void menuGrupos(DB db,Usuario u) {
+	public static int eliminarUsuario(DB db, Usuario u) {
+
+		return u.eliminarUsuario(db);
+
+	}
+
+	public static void menuGrupos(DB db, Usuario u) {
 
 		int menu = -1;
 
@@ -233,25 +225,25 @@ public class Principal {
 
 				case 1:
 
-					crearGrupo(db,u);
+					crearGrupo(db, u);
 
 					break;
 
 				case 2:
 
-					unirGrupo(db,u);
+					unirGrupo(db, u);
 
 					break;
 
 				case 3:
 
-					
+					salirGrupo(db, u);
 
 					break;
 
 				case 4:
 
-					insertarComentario(db,u);
+					insertarComentario(db, u);
 					break;
 
 				case 5:
@@ -286,24 +278,18 @@ public class Principal {
 
 	}
 
-	public static void crearGrupo(DB db,Usuario u) {
+	public static void crearGrupo(DB db, Usuario u) {
 
 		System.out.println("Nombre del grupo que desea unirse");
 		String nombre = leer.nextLine();
 
 		Grupo gp = new Grupo(nombre);
-		
-		
-		gp.crearGrupo(db,u);
-	
-		
-		
-		
-		
+
+		gp.crearGrupo(db, u);
 
 	}
 
-	public static void unirGrupo(DB db,Usuario u) {
+	public static void unirGrupo(DB db, Usuario u) {
 
 		ObjectId id;
 
@@ -311,28 +297,24 @@ public class Principal {
 		String nombre = leer.nextLine();
 
 		Grupo gp = new Grupo();
-		id = gp.buscarGrupo(db, nombre,u);
-		
-		if(id == null){
-			
+		id = gp.buscarGrupo(db, nombre, u);
+
+		if (id == null) {
+
 			System.out.println("No se ha encontrado el grupo");
-			
-			
-		}else{
-			
-			
-			gp.unirseGrupo(db, id,u);
-			
-			
+
+		} else {
+
+			gp.unirseGrupo(db, id, u);
+
 		}
-	
 
 	}
 
-	public static void insertarComentario(DB db,Usuario u) {
-		
+	public static void insertarComentario(DB db, Usuario u) {
+
 		Grupo gp = new Grupo();
-		
+
 		String comentario, grupo;
 
 		System.out.println("Grupo donde desea insertar el comentario");
@@ -340,28 +322,49 @@ public class Principal {
 
 		System.out.println("Comentario que desea introducir");
 		comentario = leer.nextLine();
-		
-		gp.insertarComentario(db, comentario,grupo,u);
-		
-		
+
+		gp.insertarComentario(db, comentario, grupo, u);
 
 	}
-	
-	
-	public static void visualizarComentarios(DB db,Usuario u){
-		
+
+	public static void visualizarComentarios(DB db, Usuario u) {
+
 		ObjectId idGrupo;
 		String nombre;
 		Grupo gp = new Grupo();
 		System.out.println("De que grupo desea visualizar los comentarios");
 		nombre = leer.nextLine();
-		
+
 		idGrupo = gp.buscarGrupo(db, nombre, u);
-		
+
 		gp.visualizarComentarios(db, idGrupo);
-		
-		
-		
+
+	}
+
+	public static void salirGrupo(DB db, Usuario u) {
+
+		String nombre;
+		ObjectId id;
+
+		System.out.println("De que grupo desea salir");
+		nombre = leer.nextLine();
+
+		Grupo gp = new Grupo();
+
+		id = gp.buscarGrupo(db, nombre, u);
+
+		if (id == null) {
+
+			System.out.println("No perteneces a ese grupo");
+
+		} else {
+			
+			u.salirGrupo(db, nombre);
+			gp.disminuirUsuarios(db, id);
+			
+
+		}
+
 	}
 
 }

@@ -14,7 +14,7 @@ public class Grupo {
 
 	private ObjectId id;
 	private String nombre;
-	private static int comentarios=0, usuarios = 1;
+	private static int comentarios=0, usuarios = 0;
 
 	public Grupo() {
 
@@ -27,20 +27,24 @@ public class Grupo {
 	}
 
 	public void crearGrupo(DB db,Usuario u) {
+		
 
+		DBCollection collection = db.getCollection("grupo");
 	
 		Date fecha = new Date();
 
 		BasicDBObject doc = new BasicDBObject();
-		doc.put("nombre", this.nombre);
+		doc.put("Nombre", this.nombre);
 		doc.put("Fecha Creacion", fecha);
+		
 		doc.put("Total Usuarios", usuarios);
-		doc.put("Total Comentario",comentarios);
+		doc.put("Total Comentarios",comentarios);
 
-		DBCollection collection = db.getCollection("grupo");
 		collection.save(doc);
 
 		u.insertarGrupo(db,this.nombre);
+		
+		
 	}
 
 	public void unirseGrupo(DB db, ObjectId id,Usuario u) {
@@ -49,7 +53,7 @@ public class Grupo {
 
 		usuarios++;
 
-		System.out.println("Añadido al grupo");
+		System.out.println("Añadido al grupo \n");
 		BasicDBObject query = new BasicDBObject().append("_id", id);
 		
 		BasicDBObject insertar = new BasicDBObject();
@@ -57,8 +61,9 @@ public class Grupo {
 				new BasicDBObject().append("Total Usuarios", usuarios));
 
 	
-		u.insertarGrupo(db,nombre);
+		u.insertarGrupo(db,this.nombre);
 		collection.update(query, insertar);
+		
 
 	}
 
@@ -70,12 +75,12 @@ public class Grupo {
 			DBCollection collection = db.getCollection("grupo");
 
 			BasicDBObject query = new BasicDBObject();
-			query.put("nombre", nombre);
+			query.put("Nombre", nombre);
 			DBCursor cursor = collection.find(query);
 
 			for (DBObject grupo : cursor) {
 
-				this.nombre = grupo.get("nombre").toString();
+				this.nombre = grupo.get("Nombre").toString();
 		
 
 				if (!this.nombre.equalsIgnoreCase(nombre)) {
@@ -99,8 +104,7 @@ public class Grupo {
 	
 	
 	public void insertarComentario(DB db,String comentario,String nombre,Usuario u){
-		
-		
+				
 		ObjectId id;
 		Date fecha = new Date();
 		comentarios++;
@@ -114,12 +118,13 @@ public class Grupo {
 		BasicDBObject insertar = new BasicDBObject();
 		
 		insertar.put("$push", new BasicDBObject(
-				"comentario", new BasicDBObject("Texto", comentario).append(
-						"usuario", u.getNombre()).append("fecha", fecha)));
+				"Comentario", new BasicDBObject("Texto", comentario).append(
+						"Usuario", u.getCorreo()).append("fecha", fecha)));
 
 		
 
 		collection.update(query,insertar);	
+		aumentarComentarios(db, id);
 		
 	}
 	
@@ -158,8 +163,82 @@ public class Grupo {
 		e.printStackTrace();
 	}
 	
-		
-		
+	
 		
 	}
+	
+	
+	public void borrarGrupo(DB db,ObjectId id){
+		
+			int numUsuarios;
+
+			DBCollection collection = db.getCollection("grupo");
+
+			BasicDBObject query = new BasicDBObject();
+			query.put("_id", id);
+			
+			DBCursor cursor = collection.find(query);
+
+			for (DBObject grupo : cursor) {
+
+				numUsuarios = (int) grupo.get("Total Usuarios");
+				
+				if(numUsuarios == 0){
+					
+					collection.remove(query);
+					
+				}
+
+			}
+
+	}
+	
+	public void disminuirUsuarios(DB db,ObjectId id){
+		
+		DBCollection collection = db.getCollection("grupo");
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		usuarios--;
+		
+		BasicDBObject insertar = new BasicDBObject();
+		insertar.append("$set",
+				new BasicDBObject().append("Total Usuarios", usuarios));	
+		
+		collection.update(query, insertar);
+		
+		borrarGrupo(db,id);
+		
+	}
+	
+	public void aumentarComentarios(DB db , ObjectId id){
+		
+		
+		DBCollection collection = db.getCollection("grupo");
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+	
+		BasicDBObject insertar = new BasicDBObject();
+		insertar.append("$set",
+				new BasicDBObject().append("Total Comentarios", comentarios));	
+		
+		collection.update(query, insertar);
+		
+	}
+	
+	/*public void disminuirComentarios(DB db,ObjectId id){
+		
+		
+		DBCollection collection = db.getCollection("grupo");
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		comentarios++;
+		
+		BasicDBObject insertar = new BasicDBObject();
+		insertar.append("$set",
+				new BasicDBObject().append("Total Comentarios", comentarios));	
+		
+		collection.update(query, insertar);
+		
+		
+	}*/
+	
 }

@@ -16,7 +16,7 @@ public class Usuario {
 	private ObjectId id;
 	private ArrayList<String> grupos = new ArrayList<String>();
 	private int i;
-	
+
 	private DBCollection collection;
 
 	public Usuario() {
@@ -44,7 +44,6 @@ public class Usuario {
 
 	public boolean logearse(String correo, String pass, DB db) {
 
-		
 		try {
 
 			DBCollection collection = db.getCollection("usuario");
@@ -75,42 +74,45 @@ public class Usuario {
 
 	}
 
-	public void eliminarUsuario(DB db) {
+	public int eliminarUsuario(DB db) {
 
 		BasicDBObject query = new BasicDBObject("_id", this.id);
 
 		this.collection = db.getCollection("usuario");
 		this.collection.remove(query);
 
+		return 0;
+
 	}
-	
-	public void insertarGrupo(DB db,String nombre){
-		
+
+	public void insertarGrupo(DB db, String nombre) {
+
 		DBCollection collection = db.getCollection("usuario");
 
 		BasicDBObject query = new BasicDBObject().append("_id", this.id);
-		
+
 		BasicDBObject insertar = new BasicDBObject();
-		
-		insertar.put("$push", new BasicDBObject(
-				"Grupo", Arrays.asList(nombre)));
-						
 
-
+		insertar.put("$push", new BasicDBObject("Grupo", new BasicDBObject(
+				"Nombre", nombre)));
 
 		collection.update(query, insertar);
-		
-		
+
 	}
-	
-	public void visualizarComentarios(DB db,String nombre){
+
+	public void salirGrupo(DB db, String nombre) {
 		
-		Grupo gp = new Grupo();
+		DBCollection collection = db.getCollection("usuario");
+
+		BasicDBObject query = new BasicDBObject().append("_id",this.id);
+
+		BasicDBObject insertar = new BasicDBObject();
+
+		insertar.put("$pull", new BasicDBObject("Grupo", new BasicDBObject(
+				"Nombre", nombre)));
 		
-		
-		
-		
-		
+		collection.update(query, insertar);
+
 	}
 
 	public String getNombre() {
