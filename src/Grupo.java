@@ -12,10 +12,13 @@ import com.mongodb.DBObject;
 
 public class Grupo {
 
+
+
 	private ObjectId id;
 	private String nombre;
-	private static int comentarios=0, usuarios = 0;
-
+	private int comentarios=0, usuarios = 1;
+	private ArrayList<String> grupos;
+	
 	public Grupo() {
 
 	}
@@ -36,40 +39,41 @@ public class Grupo {
 		BasicDBObject doc = new BasicDBObject();
 		doc.put("Nombre", this.nombre);
 		doc.put("Fecha Creacion", fecha);
-		
 		doc.put("Total Usuarios", usuarios);
 		doc.put("Total Comentarios",comentarios);
 
-		collection.save(doc);
-
 		u.insertarGrupo(db,this.nombre);
+	
+		collection.save(doc);
 		
 		
+			
 	}
 
 	public void unirseGrupo(DB db, ObjectId id,Usuario u) {
 
 		DBCollection collection = db.getCollection("grupo");
 
-		usuarios++;
+		this.usuarios++;
 
 		System.out.println("Añadido al grupo \n");
+		
 		BasicDBObject query = new BasicDBObject().append("_id", id);
 		
 		BasicDBObject insertar = new BasicDBObject();
 		insertar.append("$set",
 				new BasicDBObject().append("Total Usuarios", usuarios));
 
-	
-		u.insertarGrupo(db,this.nombre);
 		collection.update(query, insertar);
 		
+		u.insertarGrupo(db,this.nombre);
 
 	}
 
 	public ObjectId buscarGrupo(DB db, String nombre,Usuario u) {
 
 		ObjectId id;
+		
 		try {
 
 			DBCollection collection = db.getCollection("grupo");
@@ -102,12 +106,46 @@ public class Grupo {
 		return null;
 	}
 	
+	public boolean buscarGrupoNombre(DB db,String nombre){
+		
+		try{
+		
+		DBCollection collection = db.getCollection("grupo");
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("Nombre", nombre);
+		DBCursor cursor = collection.find(query);
+
+		for (DBObject grupo : cursor) {
+
+			this.nombre = grupo.get("Nombre").toString();
+	
+
+			if (this.nombre.equalsIgnoreCase(nombre)) {
+
+				return true;
+				
+			}else{
+			
+				return false;
+				
+		}
+			
+		}
+
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+		return false;
+				
+	}
+	
 	
 	public void insertarComentario(DB db,String comentario,String nombre,Usuario u){
 				
 		ObjectId id;
 		Date fecha = new Date();
-		comentarios++;
+		this.comentarios++;
 		
 		DBCollection collection = db.getCollection("grupo");
 		
@@ -119,7 +157,7 @@ public class Grupo {
 		
 		insertar.put("$push", new BasicDBObject(
 				"Comentario", new BasicDBObject("Texto", comentario).append(
-						"Usuario", u.getCorreo()).append("fecha", fecha)));
+						"Id", u.getId()).append("Nombre:",u.getNombre()).append("fecha", fecha)));
 
 		
 
@@ -170,27 +208,15 @@ public class Grupo {
 	
 	public void borrarGrupo(DB db,ObjectId id){
 		
-			int numUsuarios;
+		
 
 			DBCollection collection = db.getCollection("grupo");
 
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", id);
-			
-			DBCursor cursor = collection.find(query);
 
-			for (DBObject grupo : cursor) {
-
-				numUsuarios = (int) grupo.get("Total Usuarios");
-				
-				if(numUsuarios == 0){
-					
-					collection.remove(query);
-					
-				}
-
-			}
-
+			collection.remove(query);
+		
 	}
 	
 	public void disminuirUsuarios(DB db,ObjectId id){
@@ -198,7 +224,7 @@ public class Grupo {
 		DBCollection collection = db.getCollection("grupo");
 		BasicDBObject query = new BasicDBObject().append("_id", id);
 		
-		usuarios--;
+		this.usuarios--;
 		
 		BasicDBObject insertar = new BasicDBObject();
 		insertar.append("$set",
@@ -206,7 +232,6 @@ public class Grupo {
 		
 		collection.update(query, insertar);
 		
-		borrarGrupo(db,id);
 		
 	}
 	
@@ -221,6 +246,15 @@ public class Grupo {
 				new BasicDBObject().append("Total Comentarios", comentarios));	
 		
 		collection.update(query, insertar);
+		
+	}
+	
+	
+	public void visualizarGrupos(DB db,Usuario u){
+		
+		
+		
+		
 		
 	}
 	
@@ -240,5 +274,40 @@ public class Grupo {
 		
 		
 	}*/
+	
+	
+	public ObjectId getId() {
+		return id;
+	}
+
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public int getComentarios() {
+		return comentarios;
+	}
+
+	public void setComentarios(int comentarios) {
+		this.comentarios = comentarios;
+	}
+
+	public int getUsuarios() {
+		return usuarios;
+	}
+
+	public void setUsuarios(int usuarios) {
+		this.usuarios = usuarios;
+	}
+	
+	
 	
 }

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.bson.types.ObjectId;
 
@@ -11,6 +12,14 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 public class Usuario {
+
+	public ObjectId getId() {
+		return id;
+	}
+
+	public void setId(ObjectId id) {
+		this.id = id;
+	}
 
 	private String nombre, apellidos, correo, pass, direccion;
 	private ObjectId id;
@@ -86,7 +95,7 @@ public class Usuario {
 	}
 
 	public void insertarGrupo(DB db, String nombre) {
-
+		
 		DBCollection collection = db.getCollection("usuario");
 
 		BasicDBObject query = new BasicDBObject().append("_id", this.id);
@@ -114,6 +123,45 @@ public class Usuario {
 		collection.update(query, insertar);
 
 	}
+	
+	
+	public void sacarGrupo(DB db){
+		
+		
+		this.collection = db.getCollection("usuario");
+		
+		BasicDBObject query = new BasicDBObject().append("_id",this.id);
+		
+		DBCursor cursor = collection.find(query);
+		
+		String nombre;
+		ArrayList<String> gruposUsu = new ArrayList<String>();
+		
+	
+		for(DBObject usuario : cursor){
+			
+			System.out.println("Grupos a los que perteneces:");
+			ArrayList<DBObject> grupos = (ArrayList<DBObject>) usuario.get("Grupo");
+			
+			
+			
+			
+		
+		for(int i=0;i< grupos.size();i++){
+			
+			nombre = (String) grupos.get(i).get("Nombre");
+			
+			System.out.println(nombre);
+			
+		}
+		
+		}
+		
+		
+	}
+	
+	
+	
 
 	public String getNombre() {
 		return nombre;

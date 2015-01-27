@@ -115,6 +115,8 @@ public class Principal {
 
 		Usuario u = new Usuario(nombre, apellidos, correo_electronico, pass,
 				direccion, db);
+		u.logearse(correo_electronico, pass, db);
+
 		menuUsuario(db, u);
 
 	}
@@ -244,14 +246,18 @@ public class Principal {
 				case 4:
 
 					insertarComentario(db, u);
+
 					break;
 
 				case 5:
 
 					visualizarComentarios(db, u);
+
 					break;
 
 				case 6:
+
+					// buscarUsuarios(DB db,Usuario u);
 
 					break;
 
@@ -280,10 +286,24 @@ public class Principal {
 
 	public static void crearGrupo(DB db, Usuario u) {
 
+		Grupo gp = new Grupo();
+		
 		System.out.println("Nombre del grupo que desea unirse");
 		String nombre = leer.nextLine();
-
-		Grupo gp = new Grupo(nombre);
+		
+		if(gp.buscarGrupoNombre(db, nombre)){
+			
+			gp.setNombre(nombre);
+			gp.crearGrupo(db, u);
+			
+		}
+		else{
+			
+			System.out.println("Ese grupo ya existe");
+			
+			
+		}
+		
 
 		gp.crearGrupo(db, u);
 
@@ -313,17 +333,30 @@ public class Principal {
 
 	public static void insertarComentario(DB db, Usuario u) {
 
+		boolean comprobarNombre;
+
 		Grupo gp = new Grupo();
 
 		String comentario, grupo;
 
+		u.sacarGrupo(db);
+
 		System.out.println("Grupo donde desea insertar el comentario");
 		grupo = leer.nextLine();
 
-		System.out.println("Comentario que desea introducir");
-		comentario = leer.nextLine();
+		comprobarNombre = gp.buscarGrupoNombre(db, grupo);
 
-		gp.insertarComentario(db, comentario, grupo, u);
+		if (comprobarNombre) {
+			System.out.println("Comentario que desea introducir");
+			comentario = leer.nextLine();
+
+			gp.insertarComentario(db, comentario, grupo, u);
+
+		} else {
+
+			System.out.println("No se ha encontrado el grupo");
+
+		}
 
 	}
 
@@ -346,24 +379,40 @@ public class Principal {
 		String nombre;
 		ObjectId id;
 
+		u.sacarGrupo(db);
 		System.out.println("De que grupo desea salir");
 		nombre = leer.nextLine();
+		
 
 		Grupo gp = new Grupo();
 
-		id = gp.buscarGrupo(db, nombre, u);
+		if (gp.buscarGrupoNombre(db, nombre)) {
+			id = gp.buscarGrupo(db, nombre, u);
 
-		if (id == null) {
+			if (id == null) {
 
-			System.out.println("No perteneces a ese grupo");
+				System.out.println("No perteneces a ese grupo");
 
+			} else {
+
+				u.salirGrupo(db, nombre);
+				gp.disminuirUsuarios(db, id);
+
+				if (gp.getUsuarios() == 0) {
+
+					gp.borrarGrupo(db, id);
+
+				}
+			}
 		} else {
-			
-			u.salirGrupo(db, nombre);
-			gp.disminuirUsuarios(db, id);
-			
+
+			System.out.println("No se ha encontrado ese grupo");
 
 		}
+
+	}
+
+	public static void buscarUsuarios(DB db, Usuario u) {
 
 	}
 
