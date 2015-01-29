@@ -1,3 +1,4 @@
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -55,6 +56,7 @@ public class Usuario {
 
 		try {
 
+			direccion = new String[4];
 			DBCollection collection = db.getCollection("usuario");
 
 			BasicDBObject query = new BasicDBObject();
@@ -70,12 +72,12 @@ public class Usuario {
 				this.correo = usuario.get("correo").toString();
 				this.pass = usuario.get("pass").toString();
 				
-				/*DBObject direccion = (DBObject) usuario.get("direccion");
+				DBObject direccion = (DBObject) usuario.get("direccion");
 				
 				this.direccion[0] = (String)direccion.get("calle");
 				this.direccion[1] = (String)direccion.get("numero");
 				this.direccion[2] = (String)direccion.get("localidad");
-				this.direccion[3] = (String)direccion.get("codigo postal");*/
+				this.direccion[3] = (String)direccion.get("codigo postal");
 				
 				return true;
 			}
@@ -167,16 +169,31 @@ public class Usuario {
 	}
 	
 	
-	public void buscarUsuario(ObjectId id){
+	public void buscarUsuario(DB db,ObjectId id){
 		
-		System.out.println("Nombre: " + this.nombre);
-		System.out.println("Correo: " + this.correo);
-		System.out.println("Direccion: ");
-		System.out.println("Calle: " + this.direccion[0]);
-		System.out.println("Numero: " + this.direccion[1]);
-		System.out.println("Localidad: " + this.direccion[2]);
-		System.out.println("Codigo Postal: " + this.direccion[3]);
-	
+		direccion = new String[4];
+		DBCollection collection = db.getCollection("usuario");
+
+		BasicDBObject query = new BasicDBObject().append("_id",id);
+		
+		DBCursor cursor = collection.find(query);
+		
+		for(DBObject usuario : cursor){
+			
+		
+		this.id = (ObjectId) usuario.get("_id");
+		this.nombre = usuario.get("nombre").toString();
+		this.apellidos = usuario.get("apellidos").toString();
+		this.correo = usuario.get("correo").toString();
+		this.pass = usuario.get("pass").toString();
+		
+		DBObject direccion = (DBObject) usuario.get("direccion");
+		
+		this.direccion[0] = (String)direccion.get("calle");
+		this.direccion[1] = (String)direccion.get("numero");
+		this.direccion[2] = (String)direccion.get("localidad");
+		this.direccion[3] = (String)direccion.get("codigo postal");
+	}
 	}
 
 	public String getNombre() {
@@ -218,5 +235,15 @@ public class Usuario {
 	public void setCollection(DBCollection collection) {
 		this.collection = collection;
 	}
+
+	public String[] getDireccion() {
+		return direccion;
+	}
+
+	public void setDireccion(String[] direccion) {
+		this.direccion = direccion;
+	}
+	
+	
 
 }

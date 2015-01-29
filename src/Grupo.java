@@ -305,7 +305,7 @@ public class Grupo {
 		BasicDBObject query = new BasicDBObject().append("_id", id);
 		
 		DBCursor cursor = collection.find(query);
-
+		
 		for (DBObject grupo : cursor) {
 
 			ArrayList<DBObject> usuarios = (ArrayList<DBObject>)grupo.get("Usuarios");
@@ -314,10 +314,20 @@ public class Grupo {
 				
 				ObjectId idUsuario = (ObjectId) usuarios.get(i).get("ID");
 				
-				u.buscarUsuario(idUsuario);
+				Usuario us = new Usuario();
+				us.buscarUsuario(db,idUsuario);
 				
+				if(u.getDireccion()[2].equals(us.getDireccion()[2])){
+					
+					System.out.println("Usuario: " + us.getNombre() + " - Correo: "
+							+ us.getCorreo());
+					
+				}
+
 				
 			}
+			
+
 			
 		}
 
