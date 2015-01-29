@@ -29,7 +29,7 @@ public class Grupo {
 
 	}
 
-	public void crearGrupo(DB db,Usuario u) {
+	public void crearGrupo(DB db,Usuario u,String nombre) {
 		
 
 		DBCollection collection = db.getCollection("grupo");
@@ -37,14 +37,16 @@ public class Grupo {
 		Date fecha = new Date();
 
 		BasicDBObject doc = new BasicDBObject();
-		doc.put("Nombre", this.nombre);
+		doc.put("Nombre", nombre);
 		doc.put("Fecha Creacion", fecha);
 		doc.put("Total Usuarios", usuarios);
 		doc.put("Total Comentarios",comentarios);
 
-		u.insertarGrupo(db,this.nombre);
-	
+		u.insertarGrupo(db,nombre);
+		insertarUsuario(db, u, nombre);
+		
 		collection.save(doc);
+		
 		
 		
 			
@@ -143,6 +145,9 @@ public class Grupo {
 	
 	public void insertarComentario(DB db,String comentario,String nombre,Usuario u){
 				
+		
+		
+		
 		ObjectId id;
 		Date fecha = new Date();
 		this.comentarios++;
@@ -249,10 +254,24 @@ public class Grupo {
 		
 	}
 	
-	
-	public void visualizarGrupos(DB db,Usuario u){
+	public void insertarUsuario(DB db,Usuario u,String nombre){
 		
+		ObjectId id;
 		
+		DBCollection collection = db.getCollection("grupo");
+		
+		id=buscarGrupo(db,nombre,u);
+		
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		BasicDBObject insertar = new BasicDBObject();
+		
+		insertar.put("$push", new BasicDBObject("Usuarios", new BasicDBObject(
+				"Usuario", u.getNombre()).append("ID",u.getId())));
+
+		
+
+		collection.update(query,insertar);	
 		
 		
 		
@@ -274,6 +293,38 @@ public class Grupo {
 		
 		
 	}*/
+	
+	public void buscarUsuarios(DB db,Usuario u,String nombre){
+		
+		ObjectId id;
+		
+		id = buscarGrupo(db,nombre,u);
+		
+		DBCollection collection = db.getCollection("grupo");
+		
+		BasicDBObject query = new BasicDBObject().append("_id", id);
+		
+		DBCursor cursor = collection.find(query);
+
+		for (DBObject grupo : cursor) {
+
+			ArrayList<DBObject> usuarios = (ArrayList<DBObject>)grupo.get("Usuarios");
+	
+			for (int i=0;i<usuarios.size();i++){
+				
+				ObjectId idUsuario = (ObjectId) usuarios.get(i).get("ID");
+				
+				u.buscarUsuario(idUsuario);
+				
+				
+			}
+			
+		}
+
+
+		
+		
+	}
 	
 	
 	public ObjectId getId() {
@@ -297,17 +348,20 @@ public class Grupo {
 	}
 
 	public void setComentarios(int comentarios) {
+		
 		this.comentarios = comentarios;
 	}
 
 	public int getUsuarios() {
+		
 		return usuarios;
+		
 	}
 
 	public void setUsuarios(int usuarios) {
+		
 		this.usuarios = usuarios;
+		
 	}
-	
-	
 	
 }

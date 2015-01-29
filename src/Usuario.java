@@ -21,11 +21,10 @@ public class Usuario {
 		this.id = id;
 	}
 
-	private String nombre, apellidos, correo, pass, direccion;
+	private String nombre, apellidos, correo, pass;
 	private ObjectId id;
-	private ArrayList<String> grupos = new ArrayList<String>();
 	private int i;
-
+	private String[] direccion;
 	private DBCollection collection;
 
 	public Usuario() {
@@ -47,6 +46,7 @@ public class Usuario {
 						.append("codigo postal", direccion[3]));
 
 		DBCollection collection = db.getCollection("usuario");
+		
 		collection.save(doc);
 
 	}
@@ -69,8 +69,14 @@ public class Usuario {
 				this.apellidos = usuario.get("apellidos").toString();
 				this.correo = usuario.get("correo").toString();
 				this.pass = usuario.get("pass").toString();
-				this.direccion = usuario.get("direccion").toString();
-
+				
+				/*DBObject direccion = (DBObject) usuario.get("direccion");
+				
+				this.direccion[0] = (String)direccion.get("calle");
+				this.direccion[1] = (String)direccion.get("numero");
+				this.direccion[2] = (String)direccion.get("localidad");
+				this.direccion[3] = (String)direccion.get("codigo postal");*/
+				
 				return true;
 			}
 
@@ -161,7 +167,17 @@ public class Usuario {
 	}
 	
 	
+	public void buscarUsuario(ObjectId id){
+		
+		System.out.println("Nombre: " + this.nombre);
+		System.out.println("Correo: " + this.correo);
+		System.out.println("Direccion: ");
+		System.out.println("Calle: " + this.direccion[0]);
+		System.out.println("Numero: " + this.direccion[1]);
+		System.out.println("Localidad: " + this.direccion[2]);
+		System.out.println("Codigo Postal: " + this.direccion[3]);
 	
+	}
 
 	public String getNombre() {
 		return nombre;
@@ -193,14 +209,6 @@ public class Usuario {
 
 	public void setPass(String pass) {
 		this.pass = pass;
-	}
-
-	public String getDireccion() {
-		return direccion;
-	}
-
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
 	}
 
 	public DBCollection getCollection() {

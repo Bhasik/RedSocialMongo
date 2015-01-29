@@ -115,10 +115,10 @@ public class Principal {
 
 		Usuario u = new Usuario(nombre, apellidos, correo_electronico, pass,
 				direccion, db);
+		
 		u.logearse(correo_electronico, pass, db);
-
 		menuUsuario(db, u);
-
+		
 	}
 
 	public static void logear(DB db) {
@@ -257,7 +257,7 @@ public class Principal {
 
 				case 6:
 
-					// buscarUsuarios(DB db,Usuario u);
+					buscarUsuario(db,u);
 
 					break;
 
@@ -291,10 +291,12 @@ public class Principal {
 		System.out.println("Nombre del grupo que desea unirse");
 		String nombre = leer.nextLine();
 		
-		if(gp.buscarGrupoNombre(db, nombre)){
+		boolean comprobarNombre = gp.buscarGrupoNombre(db, nombre);
+		
+		if(!comprobarNombre){
 			
-			gp.setNombre(nombre);
-			gp.crearGrupo(db, u);
+			gp.crearGrupo(db, u,nombre);
+			gp.insertarUsuario(db, u, nombre);			
 			
 		}
 		else{
@@ -305,7 +307,7 @@ public class Principal {
 		}
 		
 
-		gp.crearGrupo(db, u);
+		
 
 	}
 
@@ -326,7 +328,7 @@ public class Principal {
 		} else {
 
 			gp.unirseGrupo(db, id, u);
-
+			gp.insertarUsuario(db, u, nombre);	
 		}
 
 	}
@@ -387,6 +389,7 @@ public class Principal {
 		Grupo gp = new Grupo();
 
 		if (gp.buscarGrupoNombre(db, nombre)) {
+			
 			id = gp.buscarGrupo(db, nombre, u);
 
 			if (id == null) {
@@ -411,9 +414,22 @@ public class Principal {
 		}
 
 	}
-
-	public static void buscarUsuarios(DB db, Usuario u) {
-
+	
+	public static void buscarUsuario(DB db,Usuario u){
+		
+		Grupo gp = new Grupo();
+		
+		u.sacarGrupo(db);
+		
+		System.out.println("De que grupo desea buscar");
+		String nombre = leer.nextLine();
+		
+		gp.buscarUsuarios(db, u, nombre);
+		
+		
+		
 	}
+
+	
 
 }
